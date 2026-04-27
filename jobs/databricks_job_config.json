@@ -1,0 +1,75 @@
+{
+	"name": "sales-data-engineering-pipeline",
+	"tasks": [
+		{
+			"task_key": "01_bronze_ingestion",
+			"notebook_task": {
+				"notebook_path": "/Repos/<your-username>/sales-data-engineering-project/notebooks/01_bronze_ingestion"
+			},
+			"existing_cluster_id": "<cluster-id>",
+			"max_retries": 2,
+			"min_retry_interval_millis": 300000
+		},
+		{
+			"task_key": "02_silver_transformation",
+			"depends_on": [
+				{
+					"task_key": "01_bronze_ingestion"
+				}
+			],
+			"notebook_task": {
+				"notebook_path": "/Repos/<your-username>/sales-data-engineering-project/notebooks/02_silver_transformation"
+			},
+			"existing_cluster_id": "<cluster-id>",
+			"max_retries": 2,
+			"min_retry_interval_millis": 300000
+		},
+		{
+			"task_key": "03_gold_star_schema",
+			"depends_on": [
+				{
+					"task_key": "02_silver_transformation"
+				}
+			],
+			"notebook_task": {
+				"notebook_path": "/Repos/<your-username>/sales-data-engineering-project/notebooks/03_gold_star_schema"
+			},
+			"existing_cluster_id": "<cluster-id>",
+			"max_retries": 2,
+			"min_retry_interval_millis": 300000
+		},
+		{
+			"task_key": "04_validation",
+			"depends_on": [
+				{
+					"task_key": "03_gold_star_schema"
+				}
+			],
+			"notebook_task": {
+				"notebook_path": "/Repos/<your-username>/sales-data-engineering-project/notebooks/04_validation"
+			},
+			"existing_cluster_id": "<cluster-id>",
+			"max_retries": 1,
+			"min_retry_interval_millis": 300000
+		},
+		{
+			"task_key": "05_delta_optimization",
+			"depends_on": [
+				{
+					"task_key": "04_validation"
+				}
+			],
+			"notebook_task": {
+				"notebook_path": "/Repos/<your-username>/sales-data-engineering-project/notebooks/05_delta_optimization"
+			},
+			"existing_cluster_id": "<cluster-id>",
+			"max_retries": 1,
+			"min_retry_interval_millis": 300000
+		}
+	],
+	"schedule": {
+		"quartz_cron_expression": "0 0 2 * * ?",
+		"timezone_id": "Europe/Stockholm",
+		"pause_status": "UNPAUSED"
+	}
+}

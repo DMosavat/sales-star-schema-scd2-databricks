@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Spark / Delta outputs
+data/bronze/
+data/silver/
+data/gold/
+*.crc
+_SUCCESS
+*.snappy.parquet
+
+# Secrets
+.env
+
+# IDE
+.vscode/
+.idea/

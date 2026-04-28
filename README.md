@@ -52,7 +52,8 @@ Retry interval: 5 minutes
 Monitoring: Run history + task logs + failure notifications
 ```
 
-🧱 Tech Stack
+## 🧱 Tech Stack
+
 Python
 PySpark
 Delta Lake
@@ -60,7 +61,9 @@ Databricks Workflows
 PyTest
 Git / GitHub
 
-📂 Repository Structure
+## 📂 Repository Structure
+
+```text
 sales-data-engineering-project/
 ├── data/
 │ └── raw/
@@ -83,8 +86,9 @@ sales-data-engineering-project/
 ├── README.md
 ├── requirements.txt
 └── .gitignore
+```
 
-⚙️ Configuration Management
+## ⚙️ Configuration Management
 
 All paths and pipeline configurations are centralized in:
 
@@ -99,7 +103,7 @@ No hardcoded paths
 Easy environment changes
 Clean and maintainable code
 
-🧩 Reusable Utilities
+## 🧩 Reusable Utilities
 
 Common operations are abstracted into:
 
@@ -114,7 +118,8 @@ from src.utils import read_delta, write_delta
 df = read_delta(spark, path)
 write_delta(df, path)
 
-🥉 Bronze Layer
+## 🥉 Bronze Layer
+
 Purpose:
 Store raw data
 Preserve source format
@@ -122,7 +127,8 @@ Convert CSV → Delta
 Output:
 data/bronze/sales_raw
 
-🥈 Silver Layer
+## 🥈 Silver Layer
+
 Transformations:
 Type casting (string → int/double/date)
 Date parsing
@@ -136,7 +142,8 @@ Validation Rules:
 Required fields must not be null
 Quantity and price must be positive
 
-🥇 Gold Layer (Star Schema)
+## 🥇 Gold Layer (Star Schema)
+
 Fact Table:
 fact_sales
 Dimension Tables:
@@ -144,7 +151,7 @@ dim_customer (SCD Type 2)
 dim_product
 dim_date
 
-🔄 Slowly Changing Dimension Type 2 (SCD2)
+## 🔄 Slowly Changing Dimension Type 2 (SCD2)
 
 dim_customer tracks historical changes:
 
@@ -166,7 +173,7 @@ Production-ready extension:
 
 Time-based join using start_date / end_date
 
-✅ Data Validation
+## ✅ Data Validation
 
 Validation layer ensures data quality:
 
@@ -178,7 +185,8 @@ SCD Type 2 correctness
 
 Failures stop the pipeline execution.
 
-⚡ Delta Optimization
+## ⚡ Delta Optimization
+
 Techniques used:
 Partitioning (date_key)
 OPTIMIZE (file compaction)
@@ -194,7 +202,7 @@ Retry Policy:
 2 retries
 5 minutes interval
 
-🧪 Testing
+## 🧪 Testing
 
 Basic data quality tests implemented with PyTest.
 
@@ -213,7 +221,8 @@ Reusable components
 Data quality first approach
 Scalable modeling (Star Schema + SCD2)
 
-⚠️ Notes
+## ⚠️ Notes
+
 Delta OPTIMIZE and ZORDER require Databricks Runtime
 Local Spark may not support all optimization features
 
@@ -233,13 +242,13 @@ Only required columns are selected during transformations to reduce I/O and memo
 df.select("order_id", "customer_id", "product_id")
 ```
 
-2. Filter Pushdown
+#### 2. Filter Pushdown
 
 Filters are applied as early as possible to minimize data processing.
 
 df.filter(col("order_date") >= "2026-01-01")
 
-3. Broadcast Joins
+#### 3. Broadcast Joins
 
 Dimension tables are broadcasted to avoid expensive shuffles during joins.
 
@@ -250,13 +259,13 @@ broadcast(dim_product),
 "product_id"
 )
 
-4. Partition Management
+#### 4. Partition Management
 
 Data is partitioned to enable parallel processing and efficient querying.
 
 fact_sales.write.partitionBy("date_key")
 
-5. Avoiding collect()
+#### 5. Avoiding collect()
 
 Large datasets are never collected to the driver to prevent memory issues.
 
@@ -264,7 +273,7 @@ Instead, aggregation and sampling are used:
 
 df.groupBy("country").count().show()
 
-🔁 Shuffle Optimization
+### 🔁 Shuffle Optimization
 
 Operations that trigger shuffle are minimized:
 
@@ -278,25 +287,31 @@ Where possible:
 Broadcast joins are used
 Data is filtered before joins
 Partitioning is optimized
-🧠 Adaptive Query Execution (AQE)
+
+### 🧠 Adaptive Query Execution (AQE)
 
 Spark AQE is leveraged to optimize execution dynamically:
 
 Adjusts shuffle partitions
 Optimizes join strategies
 Handles skewed data
-📦 Delta Lake Optimization
 
-1. File Compaction (OPTIMIZE)
+### 📦 Delta Lake Optimization
+
+#### 1. File Compaction (OPTIMIZE)
 
 Reduces small file problem:
 
-OPTIMIZE delta.`data/gold/fact_sales`; 2. Z-Ordering
+OPTIMIZE delta.`data/gold/fact_sales`;
+
+#### 2. Z-Ordering
 
 Improves query performance for frequently filtered columns:
 
 OPTIMIZE delta.`data/gold/fact_sales`
-ZORDER BY (product_key, customer_key); 3. Partitioning Strategy
+ZORDER BY (product_key, customer_key);
+
+#### 3. Partitioning Strategy
 
 Fact table is partitioned by:
 
@@ -304,12 +319,14 @@ date_key
 
 This improves performance for time-based queries.
 
-⚠️ Performance Considerations
+## ⚠️ Performance Considerations
+
 Over-partitioning can degrade performance
 Excessive OPTIMIZE operations increase compute cost
 Broadcast joins should only be used for small tables
 Skewed data can impact performance if not handled
-🎯 Outcome
+
+### 🎯 Outcome
 
 These optimizations ensure:
 
